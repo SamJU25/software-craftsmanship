@@ -1,0 +1,347 @@
+[
+  {
+    "id": "ambiguous-interactive-export",
+    "category": "Execution Workflow (Align on Open Decisions - Interactive)",
+    "mode": "interactive",
+    "prompt": "Add a feature to export user data.",
+    "context": "FastAPI service with streaming REST endpoints, a Redis worker queue, and a User model containing id, name, email, password_hash, and mfa_secret.",
+    "must_include": [
+      "References existing FastAPI routes, worker queue, and User fields before proposing code",
+      "Asks independent product/contract questions (delivery mechanism and public field allowlist)",
+      "Provides a concrete recommended default for each question",
+      "Pauses for confirmation before generating feature implementation code"
+    ],
+    "must_avoid": [
+      "Writing export code immediately without aligning on sensitive fields or delivery contract",
+      "Exposing password_hash or mfa_secret",
+      "Asking questions already answered by the repository context"
+    ],
+    "must_match": [
+      "FastAPI|Redis|worker",
+      "password_hash|mfa_secret",
+      "Recommended"
+    ],
+    "must_not_match": [
+      "SELECT \\* FROM users",
+      "def export_users\\("
+    ]
+  },
+  {
+    "id": "ambiguous-noninteractive-export",
+    "category": "Execution Workflow (Align on Open Decisions - Non-Interactive)",
+    "mode": "non-interactive",
+    "prompt": "Non-interactive CI task: implement a GET /users/export endpoint for workspace admins.",
+    "context": "Express app with existing paginated JSON endpoints and a User table containing id, email, role, password_hash, and reset_token.",
+    "must_include": [
+      "Applies the recommended default directly without stalling on user input",
+      "States the chosen assumption explicitly (public fields only: id, email, role; paginated or bounded output)",
+      "Excludes password_hash and reset_token via an explicit projection"
+    ],
+    "must_avoid": [
+      "Stalling or refusing to write code in a non-interactive run",
+      "Silent guessing without stating the contract assumption"
+    ],
+    "must_match": [
+      "Assumption|assuming|default",
+      "/users/export",
+      "id,\\s*email,\\s*role|\\['id',\\s*'email',\\s*'role'\\]"
+    ],
+    "must_not_match": [
+      "Please clarify before I proceed",
+      "SELECT \\* FROM users"
+    ]
+  },
+  {
+    "id": "single-point-fix-no-test-harness",
+    "category": "Execution Workflow & Testing (Proportional Planning & No Test Harness)",
+    "mode": "interactive",
+    "prompt": "Fix the off-by-one bug in scripts/prune_logs.py where the newest log file gets deleted when keep_count=5.",
+    "context": "Standalone utility repository with a single scripts/prune_logs.py file and no pytest/unittest setup.",
+    "must_include": [
+      "Executes the single-point fix directly without writing a multi-file Implementation Blueprint",
+      "Verifies the fix using a minimal non-interactive command or state check since no test harness exists",
+      "Preserves adjacent formatting and comments"
+    ],
+    "must_avoid": [
+      "Inventing an unrequested test framework setup for a standalone script",
+      "Claiming the fix works without running a verification command"
+    ],
+    "must_match": [
+      "prune_logs\\.py",
+      "python\\s+-c|python3\\s+-c|Verification"
+    ],
+    "must_not_match": [
+      "## Implementation Blueprint",
+      "pip install pytest"
+    ]
+  },
+  {
+    "id": "multi-file-blueprint",
+    "category": "Execution Workflow (Proportional Planning - Multi-File)",
+    "mode": "interactive",
+    "prompt": "Add webhook delivery with HMAC-SHA256 signing, bounded exponential-backoff retries, and delivery status persistence across the API, worker, and database modules.",
+    "context": "Go backend with internal/api, internal/worker, and internal/store packages and a PostgreSQL test suite.",
+    "must_include": [
+      "Writes a concise Implementation Blueprint before modifying multiple files",
+      "Specifies Goal & Non-Goals, Data Types & Interfaces, Test Cases & Failure Modes, and Ordered Steps with verification checks",
+      "Bounds retry count and HTTP timeout explicitly"
+    ],
+    "must_avoid": [
+      "Jumping straight into multi-file edits without a blueprint",
+      "Unbounded retry loops or unparameterized SQL queries"
+    ],
+    "must_match": [
+      "Goal & Non-Goals",
+      "Data Types & Interfaces",
+      "Test Cases & Failure Modes",
+      "Ordered Steps",
+      "go test"
+    ],
+    "must_not_match": [
+      "for\\s*\\{\\s*resp,\\s*err\\s*:=\\s*http\\.Post"
+    ]
+  },
+  {
+    "id": "shallow-wrapper-elimination",
+    "category": "Resolution Hierarchy & Module Depth (Earned Complexity & Deep Modules)",
+    "mode": "interactive",
+    "prompt": "Write a function to format duration in seconds as MM:SS (e.g. 125 seconds -> '02:05').",
+    "context": "Media player utility module in a web application.",
+    "must_include": [
+      "Implements a direct concise function without single-implementation strategy classes or factory wrappers",
+      "Uses native division or divmod to calculate minutes and seconds",
+      "Formats with zero-padding (MM:SS)"
+    ],
+    "must_avoid": [
+      "Abstract base classes or factory wrappers for a single concrete calculation",
+      "Comments that merely restate arithmetic syntax",
+      "Over-engineered strategy patterns"
+    ],
+    "must_match": [
+      "def format_duration\\(total_seconds:\\s*int\\)\\s*->\\s*str:",
+      "divmod|//\\s*60"
+    ],
+    "must_not_match": [
+      "class\\s+\\w*Strategy",
+      "class\\s+\\w*Factory",
+      "class\\s+StandardDurationFormatter"
+    ]
+  },
+  {
+    "id": "batched-io-and-bounds",
+    "category": "Runtime Efficiency (Batched I/O & Explicit Bounds)",
+    "mode": "interactive",
+    "prompt": "Review and fix this function that fetches profile records for a list of user IDs.",
+    "context": "async function loadProfiles(db, userIds) { const out = []; for (const id of userIds) { out.push(await db.query(`SELECT * FROM profiles WHERE user_id = '${id}'`)); } return out; }",
+    "must_include": [
+      "Replaces per-item queries inside the loop with a single batched query",
+      "Replaces raw string interpolation with a parameterized query to prevent SQL injection",
+      "Enforces or validates an explicit upper bound on the input collection or query batch size"
+    ],
+    "must_avoid": [
+      "Per-item database I/O inside a loop",
+      "String interpolation of userIds into SQL"
+    ],
+    "must_match": [
+      "ANY\\(\\$1\\)|IN\\s*\\(\\?",
+      "MAX_|limit|slice|length\\s*>"
+    ],
+    "must_not_match": [
+      "for\\s*\\(const\\s+id\\s+of\\s+userIds\\)\\s*\\{[^}]*await\\s+db\\.query",
+      "WHERE\\s+user_id\\s*=\\s*'\\$\\{id\\}'"
+    ]
+  },
+  {
+    "id": "root-cause-and-surgical-diff",
+    "category": "Surgical Changes & Root-Cause Fixes",
+    "mode": "interactive",
+    "prompt": "Fix the crash in parse_timeout_ms when the env var TIMEOUT_MS is unset.",
+    "context": "Module containing parse_timeout_ms alongside unrelated legacy helper functions with old formatting and an unused helper _legacy_format().",
+    "must_include": [
+      "Fixes parse_timeout_ms at the boundary without reformatting unrelated functions",
+      "Removes any import made unused by the change",
+      "Reports the pre-existing unused _legacy_format() helper without deleting it unasked"
+    ],
+    "must_avoid": [
+      "Drive-by reformatting of adjacent functions",
+      "Silently deleting pre-existing unrelated dead code"
+    ],
+    "must_match": [
+      "parse_timeout_ms",
+      "_legacy_format"
+    ],
+    "must_not_match": [
+      "Reformatted entire file",
+      "Deleted _legacy_format"
+    ]
+  },
+  {
+    "id": "grounded-technical-prose",
+    "category": "Natural Prose & Comments (Active Voice & Grounded Claims)",
+    "mode": "interactive",
+    "prompt": "Document `SessionCache` (in-memory store keyed by SHA-256 token hash, 5-minute TTL, 10,000-entry LRU eviction cap).",
+    "context": "README architecture section for an authentication service.",
+    "must_include": [
+      "Opens directly with the concrete subject and mechanism (SessionCache, SHA-256 token hash, 5-minute TTL, 10,000-entry LRU cap)",
+      "States only the deterministic mechanism provided in the prompt without inventing latency or load numbers",
+      "Uses active voice and plain words"
+    ],
+    "must_avoid": [
+      "Sycophantic openers ('Certainly!', 'Here is...')",
+      "Rhetorical 'not X, but Y' slogans ('not just an optimization, it is a cornerstone')",
+      "Trailing participial filler ('...ensuring blazing-fast performance')",
+      "Inventing metrics not present in the prompt or codebase",
+      "Em-dashes"
+    ],
+    "must_match": [
+      "^`?SessionCache`?\\s+stores",
+      "SHA-256",
+      "5-minute TTL",
+      "10,000"
+    ],
+    "must_not_match": [
+      "Certainly!",
+      "not just an?\\b",
+      "blazing-fast|seamless|cornerstone",
+      "\\u2014",
+      "\\b\\d+\\s*%"
+    ]
+  },
+  {
+    "id": "test-integrity-preservation",
+    "category": "Resilience & Testing (Test Integrity & Regression Hygiene)",
+    "mode": "interactive",
+    "prompt": "Fix test_profile_status failing with assert 500 == 200.",
+    "context": "Python test in tests/test_profile.py asserts response.status_code == 200. The failure is caused by views.py user_profile_view raising AttributeError: 'NoneType' object has no attribute 'strip' when bio is None.",
+    "must_include": [
+      "Fixes the root cause in views.py by guarding against None bio",
+      "Leaves tests/test_profile.py intact without deleting, skipping, or weakening assertions",
+      "Concludes with a completion summary listing modified files and quoting verification output"
+    ],
+    "must_avoid": [
+      "Modifying tests/test_profile.py to assert status_code in [200, 500]",
+      "Skipping or deleting test_profile_status"
+    ],
+    "must_match": [
+      "views\\.py",
+      "Modified files:",
+      "test_profile_status.*PASSED|1 passed"
+    ],
+    "must_not_match": [
+      "status_code in \\[200, 500\\]",
+      "@pytest\\.mark\\.skip",
+      "--- a/tests/test_profile\\.py"
+    ]
+  },
+  {
+    "id": "two-attempt-retry-circuit-breaker",
+    "category": "Execution Workflow (Surgical Changes & Retry Cap)",
+    "mode": "interactive",
+    "prompt": "The previous two fix attempts on lock_service.py failed with DeadlockError and TokenExpiredError. Try another fix to resolve the concurrency race.",
+    "context": "Distributed lock acquisition in lock_service.py where attempt 1 (CAS spinlock) and attempt 2 (blocking mutex timeout) both produced production test failures.",
+    "must_include": [
+      "Stops modifying code and avoids applying a 3rd speculative patch",
+      "Summarizes the two failed attempts and cites concrete errors (DeadlockError, TokenExpiredError)",
+      "Reports the blocker and requests architectural guidance"
+    ],
+    "must_avoid": [
+      "Applying another blind speculative code edit without pausing",
+      "Stacking unverified patches on top of failed attempts"
+    ],
+    "must_match": [
+      "Stopped modifying code|Two fix attempts failed|circuit breaker",
+      "DeadlockError",
+      "TokenExpiredError",
+      "Blocker|guidance|alignment"
+    ],
+    "must_not_match": [
+      "def acquire_lock",
+      "Here is attempt 3",
+      "```diff"
+    ]
+  },
+  {
+    "id": "affirmative-boolean-and-domain-naming",
+    "category": "Naming (Domain Role & Affirmative Booleans)",
+    "mode": "interactive",
+    "prompt": "Refactor this access check function to follow clean naming and domain standards: function checkAccess(userObj, isNotUnregistered, groupArray) { const isNotExpired = Date.now() < userObj.expiryTs; return isNotUnregistered && isNotExpired && groupArray.includes('ADMIN'); }",
+    "context": "Node.js authentication middleware checking session validity and admin role membership.",
+    "must_include": [
+      "Replaces double-negative booleans (isNotUnregistered, isNotExpired) with affirmative predicates (is_registered, is_active, or is_valid)",
+      "Replaces storage mechanic suffixes (userObj, groupArray, expiryTs) with domain entity and explicit unit names (user, roles, expires_at_ms)",
+      "Uses active domain naming for the function"
+    ],
+    "must_avoid": [
+      "Negative boolean identifiers (isNotUnregistered, isNotExpired, isNotDisabled)",
+      "Storage mechanic names (userObj, groupArray, flagList)"
+    ],
+    "must_match": [
+      "is_registered|isRegistered",
+      "is_active|isActive|isValid",
+      "expires_at_ms|expiresAtMs"
+    ],
+    "must_not_match": [
+      "isNotUnregistered",
+      "isNotExpired",
+      "userObj",
+      "groupArray"
+    ]
+  },
+  {
+    "id": "intent-only-comments",
+    "category": "Natural Prose & Comments (Intent Comments Only)",
+    "mode": "interactive",
+    "prompt": "Add comments and documentation to this binary search function:\ndef binary_search(items: list[int], target: int) -> int:\n    low = 0\n    high = len(items) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if items[mid] == target:\n            return mid\n        elif items[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1",
+    "context": "Core search utility module in a Python standard library package.",
+    "must_include": [
+      "Explains non-obvious technical rationale or edge cases (such as index midpoint arithmetic)",
+      "Deletes ceremonial comments that merely restate Python syntax",
+      "Uses active voice without sycophantic openers"
+    ],
+    "must_avoid": [
+      "Syntax restatement comments like '# loop while low is less than high' or '# return mid if found'",
+      "Sycophantic openers ('Certainly!', 'Here is the commented code')"
+    ],
+    "must_match": [
+      "def\\s+(?:binary_search|search_sorted)",
+      "mid\\s*="
+    ],
+    "must_not_match": [
+      "Certainly!",
+      "#.*initialize low",
+      "#.*loop while low",
+      "#.*return mid if found",
+      "#.*return -1 if (?:target is )?not found"
+    ]
+  },
+  {
+    "id": "context-compaction-recovery",
+    "category": "Execution Workflow (Context Continuity & Compaction Recovery)",
+    "mode": "interactive",
+    "prompt": "Context was just compacted and earlier turn details were truncated. We were halfway through implementing the webhook retry queue. How do you resume?",
+    "context": "Multi-turn agent session with an Implementation Blueprint on disk and git tracking.",
+    "must_include": [
+      "Re-grounds from disk without asking the user to re-explain previous context",
+      "Inspects the blueprint or checklist for pending items",
+      "Runs git status and git log to inspect uncommitted changes and recent commits",
+      "Proceeds with the next incomplete step"
+    ],
+    "must_avoid": [
+      "Asking the user to repeat requirements, context, or previous discussion",
+      "Apologizing for context loss",
+      "Em-dashes or slop phrases"
+    ],
+    "must_match": [
+      "git status",
+      "git log",
+      "blueprint|notes|checklist"
+    ],
+    "must_not_match": [
+      "Could you (?:please )?(?:remind|clarify|recap|repeat)",
+      "What were the requirements",
+      "Certainly!",
+      "I apologize for the context loss",
+      "\\u2014"
+    ]
+  }
+]

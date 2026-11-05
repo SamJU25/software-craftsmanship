@@ -1,0 +1,26 @@
+{
+  "name": "software-craftsmanship",
+  "description": "Engineering standard and natural writing guidelines for software and documentation.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "keywords": [
+    "software-craftsmanship",
+    "clean-code",
+    "architecture",
+    "anti-slop",
+    "websites",
+    "ai-agents",
+    "engineering",
+    "testing",
+    "performance"
+  ],
+  "skills": [
+    "./skills/software-craftsmanship"
+  ],
+  "author": {
+    "name": "SamJU25",
+    "url": "https://github.com/SamJU25"
+  },
+  "homepage": "https://github.com/SamJU25/software-craftsmanship",
+  "repository": "https://github.com/SamJU25/software-craftsmanship"
+}

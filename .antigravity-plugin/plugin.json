@@ -1,0 +1,17 @@
+{
+  "name": "software-craftsmanship",
+  "displayName": "Software Craftsmanship",
+  "description": "Engineering standard and natural writing guidelines for software and documentation.",
+  "version": "1.0.0",
+  "suggestedPrompts": [
+    "Plan and build an implementation blueprint for this feature",
+    "Review and refactor this module using software-craftsmanship principles",
+    "Rewrite this documentation and technical prose to remove AI slop and inflation"
+  ],
+  "author": {
+    "name": "SamJU25",
+    "url": "https://github.com/SamJU25"
+  },
+  "homepage": "https://github.com/SamJU25/software-craftsmanship",
+  "repository": "https://github.com/SamJU25/software-craftsmanship"
+}

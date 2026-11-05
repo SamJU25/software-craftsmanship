@@ -1,0 +1,4 @@
+interface:
+  display_name: "Software Craftsmanship"
+  short_description: "Engineering standard and natural writing guidelines for software and documentation."
+  default_prompt: "Apply software-craftsmanship guidelines to plan, architect, build, debug, refactor, test, review, or write this."

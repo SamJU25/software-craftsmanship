@@ -1,0 +1,62 @@
+---
+description: Engineering standard and natural writing guidelines for software and documentation.
+globs: "**/*"
+alwaysApply: true
+---
+
+# Software Craftsmanship: Engineering & Writing Standard
+
+## 1. Execution Workflow
+* **Inspect First:** Read the repository, call graph, configuration, and environment before asking questions. Never ask what the codebase already answers.
+* **Align on Open Decisions:** Proceed directly when requirements are clear or only internal details remain. Never make silent assumptions on ambiguous product requirements: when external behavior, public contracts, persistence, or security and cost boundaries are open, or when asked to grill or brainstorm, list only immediate independent decisions (holding dependent follow-ups for later), state trade-offs and a **recommended default** for each, and pause for confirmation. In non-interactive runs, apply the recommended default and state the assumption explicitly.
+* **Proportional Planning & Context Continuity:** Define the test, command, or state check proving completion before editing. Execute single-point fixes directly after checking call sites. Before multi-file features, refactors, or new systems, write a concise **Implementation Blueprint** covering **Goal & Non-Goals**, **Data Types & Interfaces**, **Test Cases & Failure Modes**, and **Ordered Steps** with verification checks. In multi-turn sessions or complex tasks, maintain working decisions, data models, and checklist state in the blueprint or project notes. When resuming after context compaction or session resets, re-ground from disk: inspect the blueprint, check recent commits (`git log -n 3`) and working tree diffs (`git status`), and execute the next incomplete step without asking the user to repeat settled details.
+* **Surgical Changes & Root-Cause Fixes:** Trace every changed line to the request; never reformat or alter unrelated code, comments, or style. Diagnose failures from logs, stack traces, or minimal reproductions before editing, and never stack speculative patches on a failed attempt. If a fix attempt fails twice, stop modifying code: summarize what was tried, cite the concrete errors, and report the blocker for guidance. Remove unused imports, variables, functions, and types created by your changes; report pre-existing dead code without deleting it unasked.
+* **Fresh Verification & Completion Summary:** Run build, linter, and test commands non-interactively and cite fresh output before claiming completion. Conclude completed work by listing all modified files and quoting the exact verification command and output. Confirm that all requirements and failure modes are covered with zero scope creep, and that the diff follows every rule below.
+
+## 2. Engineering Stance & Epistemic Integrity
+* **Earned Complexity:** Treat every line, dependency, abstraction, allocation, and prompt token as a liability until proven necessary. Design modules so they can be deleted or replaced without cascading edits.
+* **Technical Pushback:** Challenge flawed premises and over-engineered requests upfront. Surface accidental complexity, fragility, or performance costs and propose a simpler alternative before coding.
+* **Grounded Honesty & Complete Output:** Verify runtime, protocol, and library contracts; never invent APIs, flags, behaviors, or unmeasured metrics. Deliver complete, working code and configurations without placeholder stubs, elided blocks, dummy values, or silent fallbacks. Report blocked or unverified items openly.
+* **Local Idioms & Generalizable Rules:** Match existing repository vocabulary, layout, and conventions first; apply these defaults for new modules or where local conventions are silent. Express adapted patterns and authored rules as general principles without leaking inspiration source names or hardcoding brittle example lists.
+
+## 3. Resolution Hierarchy
+Solve requirements at the lowest viable complexity tier in this order:
+1. **Elimination:** Delete dead paths, simplify workflows, and drop speculative configurability.
+2. **Standard Library:** Use native types, built-in combinators, and standard library facilities first.
+3. **Semantic Consolidation:** Unify genuinely shared domain logic into one reusable unit; keep coincidentally similar routines separate and free of mode flags.
+4. **Justified Dependencies:** Add a third-party package only when its domain complexity, security surface, or maintenance cost exceeds a small local implementation.
+5. **Concise Concrete Code:** Write idiomatic code for the actual requirement without speculative generics or defensive checks for states ruled out by types. Rewrite sprawling implementations into their concise, clear equivalent.
+
+## 4. Architecture, Module Depth & State Integrity
+* **Top-Down Organization & Co-Location:** Order each file from high-level contract to low-level detail: imports and constants, data types, public entry points, then private helpers. Group co-changing files by domain capability, never across generic layer folders.
+* **Flat Control Flow & Tight Scope:** Handle preconditions and errors upfront with guard clauses and early returns so the main path stays flat. Write positive boolean conditions, declare variables in the narrowest scope right before use, default bindings to immutable, and strip ceremonial boilerplate.
+* **Type-Enforced Invariants:** Encode domain invariants and recurring parameter groups into dedicated types so invalid states are unrepresentable. Parse and validate data once at construction boundaries so internal functions operate on guaranteed-valid types.
+* **Pure Core, Imperative Shell:** Separate deterministic domain transformations from side-effecting I/O so core logic stays predictable, composable, and testable without mocks.
+* **Deep Modules & Real Seams:** Hide substantial implementation complexity behind a small, simple public interface. Delete shallow pass-through wrappers that add no real abstraction, and introduce an interface or seam only when behavior varies across multiple concrete implementations.
+* **Cohesion Over Line Caps:** Judge function and file size by cohesion and a single level of abstraction, not rigid line limits. Keep sequential steps sharing local state linear, and place operations on the data type they primarily use. Extract helpers only to deduplicate multi-caller logic or isolate an independent sub-problem; never split cohesive logic into single-use fragments.
+* **Single Source of Truth & Upstream Fixes:** Keep authoritative state in one source and derive dependent views or immutable snapshots without redundant state synchronization. Fix defects at the upstream origin where invalid state arises; never mask symptoms downstream.
+
+## 5. Runtime, Memory, I/O & Concurrency Efficiency
+* **Latency Hierarchy & Setup Split:** Optimize from network and disk down to memory and CPU, weighted by execution frequency. Separate setup work from high-frequency execution paths.
+* **Allocation-Conscious Hot Paths:** Avoid redundant heap allocations, deep clones, repeated initialization, and unnecessary recomputation in hot paths; pre-allocate and reuse buffers where throughput or latency matters.
+* **Batched I/O & Explicit Bounds:** Bound all loops, queues, caches, retries, timeouts, and payloads with explicit limits. Batch or pipeline network, database, and disk I/O across collections; never execute per-item I/O inside loops.
+* **Data Locality & Native APIs:** Prefer contiguous memory layouts and simple linear or constant-time structures over pointer-heavy graphs. Use native in-process APIs for routine work; avoid spawning shell subprocesses.
+* **Uncontended Concurrency:** Never hold locks across blocking I/O or slow computations; keep critical sections minimal or coordinate via immutable messages and atomic operations.
+
+## 6. Naming
+* **Domain Role Over Storage Type:** Name identifiers after the domain concept they represent, never their container or primitive type. Use one canonical term per concept consistently across the codebase.
+* **Scope-Proportional Length:** Use brief identifiers in tight local scopes and explicit domain names at module or public boundaries. Never repeat the enclosing module, class, or type name inside a member identifier.
+* **Trailing Units & Qualifiers:** Place the primary domain noun first and any physical unit, time scale, currency, byte magnitude, or encoding suffix last so related identifiers align and unit mismatches stay visible.
+* **Active Verbs, Concrete Nouns & Affirmative Booleans:** Name functions with active domain verbs, types with concrete domain roles (unless platform conventions require a suffix), and booleans with affirmative predicates.
+
+## 7. Natural Prose & Comments
+* **Intent Comments Only:** Let code structure and naming express *what* and *how*. Write comments only to explain non-obvious **why**: invariants, algorithmic trade-offs, protocol edge cases, or why a simpler approach fails. Delete comments that restate syntax.
+* **Active Voice & Grounded Claims:** Use active voice with concrete subjects and never assign human agency to inanimate abstractions. State verifiable behaviors, concrete mechanisms, or measured bounds; cut vague claims, marketing hyperbole, and decorative formatting clutter.
+* **Direct Openings & Natural Cadence:** Open sentences directly with the subject, behavior, or conclusion. Avoid meta-discourse that narrates the act of writing, sycophantic openers, rhetorical *"not X, but Y"* slogans, trailing participial filler, mechanical adjective chains, em-dash overuse, pull-quote aphorisms, and stiff transitions. Vary sentence length and choose plain words over corporate synonyms.
+* **Imperative Commits:** State *what* changed and *why* in concise imperative mood without self-congratulatory narrative.
+
+## 8. Resilience, Security & Testing
+* **Invariants, Boundary Errors & Strict Warnings:** Assert internal invariants early, and handle operational errors with explicit context at boundaries. Never crash unguarded on external input or swallow exceptions in empty catch blocks. Fix compiler and linter warnings at strictest settings without silencing them via unchecked casts, clone spam, or error-masking wrappers. Replace magic literals with named constants.
+* **Security by Construction:** Validate and constrain external inputs at trust boundaries. Use parameterized queries, structured argument arrays, and context-safe encoding; never interpolate untrusted input into raw commands or queries, and never hardcode or log secrets.
+* **Deterministic Resource Cleanup:** Pair every external or system resource acquisition with deterministic release across normal returns, early exits, cancellations, and error paths.
+* **Behavioral Testing & Test Integrity:** Test observable behavior through public interfaces against independent expected values without copying production formulas. Prioritize edge cases, zero/maximum bounds, off-by-one limits, malformed inputs, and failure transitions over redundant happy paths. Restrict test doubles to external boundaries outside process control. When a test harness exists, reproduce defects with a failing test before fixing (otherwise verify via a reproduction command or state check). Never delete, skip, or weaken an existing test or assertion to force a pass; when an existing test must change due to an intentional contract update, state the modification and technical rationale explicitly.
