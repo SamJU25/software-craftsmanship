@@ -55,6 +55,8 @@ Solve requirements at the lowest viable complexity tier in this order:
 * **Intent Comments Only:** Let code structure and naming express *what* and *how*. Write comments only to explain non-obvious **why**: invariants, algorithmic trade-offs, protocol edge cases, or why a simpler approach fails. Delete comments that restate syntax.
 * **Active Voice & Grounded Claims:** Use active voice with concrete subjects and never assign human agency to inanimate abstractions. State verifiable behaviors, concrete mechanisms, or measured bounds; cut vague claims, marketing hyperbole, and decorative formatting clutter.
 * **Direct Openings & Natural Cadence:** Open sentences directly with the subject, behavior, or conclusion. Avoid meta-discourse that narrates the act of writing, sycophantic openers, rhetorical *"not X, but Y"* slogans, trailing participial filler, mechanical adjective chains, em-dash overuse, pull-quote aphorisms, and stiff transitions. Vary sentence length and choose plain words over corporate synonyms.
+* **Omit Trailing Summaries:** Conclude technical prose immediately when requirements are met. Omit unprompted conclusion sections, thematic recaps, moralizing codas, and wrap-up platitudes.
+* **Fact & Quantity Preservation:** Preserve numerical quantities, physical units, timeout scales, port numbers, and domain identifiers byte-for-byte when modifying documentation, docstrings, or comments.
 * **Imperative Commits:** State *what* changed and *why* in concise imperative mood without self-congratulatory narrative.
 
 ## 8. Resilience, Security & Testing

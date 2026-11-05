@@ -184,14 +184,16 @@
     "must_include": [
       "Opens directly with the concrete subject and mechanism (SessionCache, SHA-256 token hash, 5-minute TTL, 10,000-entry LRU cap)",
       "States only the deterministic mechanism provided in the prompt without inventing latency or load numbers",
-      "Uses active voice and plain words"
+      "Uses active voice and plain words",
+      "Concludes immediately without unrequested summary or conclusion sections"
     ],
     "must_avoid": [
       "Sycophantic openers ('Certainly!', 'Here is...')",
       "Rhetorical 'not X, but Y' slogans ('not just an optimization, it is a cornerstone')",
       "Trailing participial filler ('...ensuring blazing-fast performance')",
       "Inventing metrics not present in the prompt or codebase",
-      "Em-dashes"
+      "Em-dashes",
+      "Unrequested conclusion or summary sections"
     ],
     "must_match": [
       "^`?SessionCache`?\\s+stores",
@@ -204,7 +206,9 @@
       "not just an?\\b",
       "blazing-fast|seamless|cornerstone",
       "\\u2014",
-      "\\b\\d+\\s*%"
+      "\\b\\d+\\s*%",
+      "##\\s*(?:Conclusion|Summary)",
+      "\\b(?:in conclusion|to summarize|ultimately)\\b"
     ]
   },
   {
