@@ -2,28 +2,63 @@
 
 An engineering standard for AI coding agents, providing installable skills and rule templates across modern agent environments.
 
-Guides AI coding agents with strict engineering discipline: preventing ungrounded architecture, diff pollution from style reformats, test weakening to force passing builds, and promotional AI filler.
+Default coding models optimize for conversational compliance over engineering discipline: they guess ambiguous contracts silently, jump into code without structural planning, weaken test assertions to force green runs, generate speculative factory wrappers for basic math, and pad documentation with promotional AI filler.
+
+`software-craftsmanship` establishes strict engineering constraints in a single self-contained skill (~2,000 tokens, under 1% of modern agent context windows).
+
+---
+
+## Execution Lifecycle
+
+The diagram below outlines the full inspect-align-plan-execute-verify cycle enforced during every task:
+
+```mermaid
+flowchart TD
+    Task["Task Request"] --> Inspect["Inspect Codebase, Tests, and State"]
+    Inspect --> ContractCheck{"Ambiguous Contract?"}
+    ContractCheck -->|Yes| Align["Align Decisions with Recommended Default"]
+    ContractCheck -->|No| ScopeCheck{"Multi-File or New System?"}
+    Align --> ScopeCheck
+    ScopeCheck -->|Yes| Blueprint["Formulate Implementation Blueprint"]
+    ScopeCheck -->|No| CallSites["Check Call Sites and Reproduce Defect"]
+    Blueprint --> Step["Execute Surgical Implementation Step"]
+    CallSites --> Step
+    Step --> Verify["Run Fresh Non-Interactive Verification"]
+    Verify --> TestCheck{"Checks Pass?"}
+    TestCheck -->|Pass: Steps Remain| Step
+    TestCheck -->|Pass: Complete| Finish["Quote Fresh Output and Summarize Diffs"]
+    TestCheck -->|Fail: Attempt 1| Diagnose["Diagnose Root Cause from Logs"]
+    Diagnose --> Step
+    TestCheck -->|Fail: Attempt 2| Halt["Halt and Report Blocker"]
+```
 
 ---
 
 ## Quick Install
 
-### Universal Skills CLI (`npx skills`)
+### 1. Google Antigravity
+
+* **Global (All Workspaces):**
+  Copy `skills/software-craftsmanship/SKILL.md` to `~/.gemini/config/skills/software-craftsmanship/SKILL.md`.
+* **Workspace:**
+  Copy `skills/software-craftsmanship/SKILL.md` to `.agents/skills/software-craftsmanship/SKILL.md`.
+
+### 2. Universal Skills CLI (`npx skills`)
 
 ```bash
 npx skills add SamJU25/software-craftsmanship
 ```
 
-### Claude Code Plugin Marketplace
+### 3. Claude Code Plugin Marketplace
 
 ```bash
 /plugin marketplace add SamJU25/software-craftsmanship
 /plugin install software-craftsmanship@software-craftsmanship
 ```
 
-### Always-On Rule Setup
+### 4. Always-On Rule Setup
 
-If your agent loads a single instructions file on every turn:
+For agents loading instructions on every conversation turn:
 
 * **Repository Root:** Copy [`templates/AGENTS.md`](templates/AGENTS.md) to your project root as `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md`.
 * **Cursor:** Copy [`templates/software-craftsmanship.mdc`](templates/software-craftsmanship.mdc) to `.cursor/rules/`.
@@ -31,55 +66,76 @@ If your agent loads a single instructions file on every turn:
 
 ---
 
-## Why This Standard Exists
+## The Eight Core Disciplines
 
-Default AI coding models optimize for conversational compliance over engineering discipline:
-* On ambiguous requests, they guess product requirements silently without clarifying contracts.
-* On multi-file tasks, they jump straight into editing files without planning data flow.
-* On failing builds, they often edit or weaken the test assertion to force a green test suite.
-* On simple utilities, they generate multi-class Strategy and Factory patterns.
-* On code comments and documentation, they pad explanations with promotional buzzwords and rhetorical slogans.
+`software-craftsmanship` consolidates core software engineering principles into eight enforceable operational sections:
 
-`software-craftsmanship` replaces multi-skill slash command chaining with **one self-contained skill** (~2,000 tokens, under 1% of modern context windows).
+### 1. Execution Workflow
+* **Inspect First:** Read the repository structure, call graph, configuration, and environment before asking questions. Never ask what the codebase already answers.
+* **Align on Open Decisions:** Proceed directly when requirements are clear. When external behavior, public contracts, persistence, or security boundaries are open, list immediate independent decisions with concrete trade-offs and a recommended default.
+* **Proportional Planning:** Define the test, command, or state check proving completion before editing. Formulate a concise Implementation Blueprint before multi-file changes or refactors. When resuming across context resets, re-ground from disk: inspect the blueprint, check recent commits (`git log -n 3`) and working tree status (`git status`), and execute the next incomplete step without asking the user to repeat settled details.
+* **Surgical Changes:** Trace every modified line directly to the user request. Never reformat unrelated code, alter stylistic conventions, or touch adjacent files unasked.
+* **Fresh Verification:** Run build, lint, and test commands non-interactively. Quote fresh command strings and terminal output before claiming completion.
 
----
+### 2. Engineering Stance & Epistemic Integrity
+* **Earned Complexity:** Treat every line, dependency, abstraction, allocation, and prompt token as a liability until proven necessary.
+* **Technical Pushback:** Challenge flawed premises and over-engineered requests upfront. Propose simpler alternatives before writing code.
+* **Grounded Honesty:** Deliver complete, working code without placeholder stubs, elided blocks, dummy values, or silent fallbacks. Report blocked or unverified items openly.
 
-## What the Standard Enforces
+### 3. Resolution Hierarchy
+Solve requirements at the lowest viable complexity tier in strict order:
+1. **Elimination:** Delete dead execution paths, simplify workflows, and drop speculative configuration.
+2. **Standard Library:** Use native data types, built-in combinators, and standard library modules first.
+3. **Semantic Consolidation:** Unify genuinely shared domain logic; keep coincidentally similar routines separate.
+4. **Justified Dependencies:** Add third-party packages only when domain complexity or security boundaries exceed a small local implementation.
+5. **Concise Concrete Code:** Write direct code for the actual requirement without speculative generics or defensive checks for states ruled out by types.
 
-```mermaid
-flowchart LR
-    A[Task Request] --> B[Inspect Code & State]
-    B --> C{Open Contract?}
-    C -- Yes --> D[Align with Recommended Default]
-    C -- No --> E[Proportional Blueprint]
-    D --> E
-    E --> F[Surgical Implementation]
-    F --> G[Test Verification]
-```
+### 4. Architecture, Module Depth & State Integrity
+* **Top-Down Organization:** Order each file from high-level contract to low-level detail: imports, constants, public entry points, then private helpers. Group co-changing files by domain capability.
+* **Flat Control Flow:** Handle preconditions and errors upfront with guard clauses and early returns.
+* **Type-Enforced Invariants:** Encode domain invariants into dedicated types so invalid states are unrepresentable. Validate data once at boundary entry points.
+* **Pure Core, Imperative Shell:** Separate deterministic domain transformations from side-effecting I/O.
+* **Deep Modules:** Hide substantial implementation logic behind a small, simple public interface. Eliminate shallow pass-through wrappers that provide no abstraction.
+* **Single Source of Truth:** Fix defects at the upstream origin where invalid state arises; never mask symptoms downstream.
 
-1. **Inspect Before Asking:** Read the repository structure, call graph, configuration, and environment before asking questions. Never ask what the codebase already answers.
-2. **Align on Open Decisions:** Proceed directly when requirements are clear. When external behavior, public contracts, persistence, or security and cost boundaries are open, list immediate independent decisions with trade-offs and a recommended default. In non-interactive runs, apply the default and state the assumption explicitly.
-3. **Proportional Planning:** Define the test, command, or state check proving completion before editing. Write a concise Implementation Blueprint before multi-file changes. When resuming after context compaction or session resets, re-ground from disk: inspect the blueprint, check recent commits (`git log -n 3`) and working tree status (`git status`), and execute the next incomplete step without asking the user to repeat settled details.
-4. **Surgical Diffs & Root-Cause Fixes:** Trace every changed line to the request; never reformat unrelated code, comments, or style. Diagnose failures from logs or minimal reproductions before editing. If a fix attempt fails twice, stop modifying code, cite concrete errors, and report the blocker.
-5. **Test Integrity:** Never delete, skip, or weaken an existing test or assertion to force a pass. When an intentional contract update requires altering a test, state the modification and technical rationale explicitly. When a test harness exists, reproduce defects with a failing test before fixing.
-6. **Deep Modules & Earned Complexity:** Solve requirements at the lowest viable complexity tier: delete dead paths first, use standard library primitives, and write concise concrete code. Delete shallow pass-through wrappers that add no real abstraction.
-7. **Domain Naming:** Name identifiers after domain concepts over storage types. Use one canonical term per concept consistently. Place primary domain nouns first and physical units or scales last (`timeout_ms`, `max_batch_size`).
-8. **Plain Prose & Intent Comments:** Let code structure and naming express what and how. Write comments only to explain non-obvious why. Write technical documentation and commit messages in active voice with grounded claims, avoiding sycophantic openers, promotional buzzwords, rhetorical slogans, and em-dash clutter.
+### 5. Runtime, Memory, I/O & Concurrency Efficiency
+* **Allocation-Conscious Hot Paths:** Avoid redundant heap allocations, deep clones, and repeated initialization in high-frequency execution loops.
+* **Batched I/O & Explicit Bounds:** Bound all loops, queues, caches, retries, timeouts, and payloads. Batch database and network requests across collections; never execute per-item queries inside loops.
+* **Data Locality & Native APIs:** Prefer contiguous memory layouts and constant-time structures. Use native in-process APIs for routine work instead of spawning shell subprocesses.
+* **Uncontended Concurrency:** Never hold locks across blocking I/O; keep critical sections minimal.
+
+### 6. Domain Naming
+* **Domain Role Over Storage Type:** Name identifiers after the domain concept they represent, never their primitive container or collection type (`sessions` instead of `session_list`).
+* **Trailing Units:** Place primary domain nouns first and physical units or scales last (`timeout_ms`, `max_batch_size`, `retry_limit`).
+* **Active Verbs & Affirmative Booleans:** Name functions with active domain verbs (`fetch_credentials`) and booleans with affirmative predicates (`is_active`, `has_permission`).
+
+### 7. Natural Technical Prose & Documentation
+* **Intent Comments Only:** Let code structure and naming explain what and how. Write comments only to explain non-obvious why: invariants, algorithmic trade-offs, and protocol edge cases.
+* **Active Voice & Grounded Claims:** Use active voice with concrete subjects. Cut vague marketing filler, promotional buzzwords, and decorative clutter.
+* **Direct Openings:** Open sentences directly with the subject or conclusion. Avoid sycophantic openers, rhetorical slogans, trailing participial tails, and em-dash overuse.
+* **Imperative Commits:** State what changed and why in concise imperative mood.
+
+### 8. Resilience, Security & Testing
+* **Boundary Validation:** Validate and constrain external input at trust boundaries with parameterized queries and context-safe encoders. Never interpolate untrusted strings into queries or shell commands.
+* **Deterministic Resource Cleanup:** Pair every external resource acquisition with deterministic release across normal returns, early exits, and error paths.
+* **Test Integrity:** Never delete, skip, or weaken an existing test assertion to force a passing build. When an intentional contract change requires altering a test, state the modification and rationale explicitly.
+* **Reproduction Harness:** Reproduce defects with a failing test before fixing. Test observable behavior against independent expected values without copying production formulas.
+* **Two-Strike Circuit Breaker:** If a fix fails twice consecutively, stop modifying code. Cite terminal output, summarize what was tried, and report the root blocker for guidance.
 
 ---
 
 ## Behavior in Practice
 
 > [!NOTE]
-> The following illustrative scenarios demonstrate code structure and planning differences between typical unguided agent habits and craftsmanship-guided responses. For recorded model outputs evaluated against automated assertions, see the [verification suite](#automated-verification--benchmarks).
+> The scenarios below illustrate planning and structural differences between typical unguided agent outputs and craftsmanship-guided responses. For automated assertions and benchmarks, see the [verification suite](#automated-verification--benchmarks).
 
 ### 1. Handling Ambiguity
 
 **Task:** *"Add an endpoint to export user data."*
 
-* **Default Agent:** Generates an unpaginated `GET /users/export` route returning every database column (including password hashes and API keys) without checking data volume or existing route conventions.
+* **Unguided Agent:** Generates an unpaginated `GET /users/export` route returning every database column (including password hashes and API keys) without checking data volume or existing route conventions.
 * **With `software-craftsmanship`:** Checks existing routes and user models first, then aligns on immediate independent decisions:
-  * **Delivery:** Stream paginated CSV/NDJSON via `StreamingResponse` for workspace-level exports, or enqueue a background worker job if exports span the tenant database. (Recommended: streaming with 500-row keyset batches).
+  * **Delivery:** Stream paginated CSV/NDJSON via `StreamingResponse` for workspace-level exports, or enqueue a background worker job if exports span the tenant database (recommended: streaming with 500-row keyset batches).
   * **Fields:** Project an explicit allowlist (`id`, `name`, `email`) at the query boundary to prevent credential leakage.
 
 ---
@@ -88,7 +144,7 @@ flowchart LR
 
 **Task:** *"Format duration in seconds as `MM:SS` (e.g. 125 seconds -> `'02:05'`)."*
 
-* **Default Agent (Over-abstraction bloat):**
+* **Unguided Agent (Over-abstraction bloat):**
   ```python
   from abc import ABC, abstractmethod
 
@@ -122,11 +178,11 @@ flowchart LR
 
 **Task:** *"Fix `test_profile_status` failing with `assert 500 == 200`."*
 
-* **Default Agent:** Modifies the test file to accept status 500:
+* **Unguided Agent:** Weakens the test file to accept status 500:
   ```python
   def test_profile_status(client):
       response = client.get("/profile")
-      assert response.status_code in [200, 500]  # Weakened to force a pass!
+      assert response.status_code in [200, 500]  # Weakened assertion to force a pass!
   ```
 * **With `software-craftsmanship`:** Identifies the root cause (`views.py` calls `bio.strip()` when `bio` is `None`), leaves the test file completely unmodified, and applies a surgical fix at the upstream origin:
   ```diff
@@ -144,9 +200,9 @@ flowchart LR
 
 **Task:** *"Document `SessionCache` (in-memory store keyed by SHA-256 token hash, 5-minute TTL, 10,000-entry LRU eviction cap)."*
 
-* **Default Agent:**
-  > *"Certainly! Here is an overview of the caching layer. In today's fast-paced distributed systems landscape, caching is not just an optimization; it is a critical cornerstone of modern architecture, ensuring blazing-fast, seamless, and robust performance, while effortlessly reducing database load."*
-* **With `software-craftsmanship`:**
+* **Unguided Agent (Promotional AI filler):**
+  > *"Certainly! Here is an overview of the caching layer. In today's fast-paced distributed systems landscape, caching is a critical cornerstone of modern architecture, ensuring blazing-fast, seamless, and robust performance while effortlessly reducing database load."*
+* **With `software-craftsmanship` (Grounded and direct):**
   > *"`SessionCache` stores serialized session records in memory, keyed by SHA-256 token hash. Entries expire after a 5-minute TTL, and the table evicts the least-recently-used record once capacity reaches 10,000 entries."*
 
 ---
@@ -172,13 +228,11 @@ Evaluates 13 behavioral scenarios with 259 automated regex and AST syntax assert
 ### 2. Real-World Task Benchmark ([`tests/benchmark.py`](tests/benchmark.py))
 Executes isolated temporary repositories for programming tasks scored by automated unit test execution (`unittest`), test file SHA-256 integrity checks, and diff scope bounding.
 
-The default benchmark runs a reference patch suite, asserting that the grading harness correctly flags test tampering, architectural bloat, and bounds failures. To execute and score real agent edits live in isolated repositories:
-
 ```bash
 # Run reference patch grader suite
 python tests/benchmark.py
 
-# Score real agent edits live in isolated repos
+# Score live agent edits in isolated repos
 python tests/benchmark.py --run-agent "claude -p"
 ```
 
@@ -188,14 +242,11 @@ python tests/benchmark.py --run-agent "claude -p"
 | **`format_duration_string`** | Format duration in seconds as `MM:SS` without wrapper classes | Creates `DurationFormatterStrategy` and factory wrappers for a single calculation | **Zero wrappers:** Implements direct calculation with native `divmod`; passes all duration tests (5/5 tests pass) |
 | **`bounded_batch_fetch`** | Implement batch query with `MAX_BATCH_SIZE = 100` | Executes unbounded loop queries without upper bounds validation | **Bounded by construction:** Validates input and enforces `MAX_BATCH_SIZE` limits (3/3 tests pass) |
 
-> [!NOTE]
-> The default benchmark evaluates scripted reference test vectors to verify that the test runner correctly detects test tampering, wrapper bloat, and unbounded execution. Real-world model adherence remains probabilistic and varies across model tiers. To score live agent edits in isolated workspaces, run with `--run-agent` (e.g. `python tests/benchmark.py --run-agent "claude -p"`).
-
 ---
 
 ## Agent Setup Matrix
 
-The table below lists standard configuration locations and install paths across coding environments. Install `software-craftsmanship` either as an on-demand **Skill** loaded via progressive disclosure (recommended) or as an always-on **Rule**. Choose one mode per environment so instructions are loaded once per session.
+Install `software-craftsmanship` as an on-demand **Skill** loaded via progressive disclosure (recommended) or as an always-on **Rule**. Choose one mode per environment so instructions load once per session.
 
 | Coding Agent | Project Skill Path | Global Skill Path | Always-On Rule File |
 | :--- | :--- | :--- | :--- |
